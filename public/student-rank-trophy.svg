@@ -1,0 +1,60 @@
+<svg width="280" height="240" viewBox="0 0 280 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="42" y1="28" x2="234" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#151713"/>
+      <stop offset="1" stop-color="#0C0E0B"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="72" y1="54" x2="208" y2="164" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F3F8FF"/>
+      <stop offset="0.45" stop-color="#BFC9D6"/>
+      <stop offset="1" stop-color="#6C7888"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="96" y1="60" x2="182" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4B7"/>
+      <stop offset="0.42" stop-color="#F3CD57"/>
+      <stop offset="1" stop-color="#B97916"/>
+    </linearGradient>
+    <linearGradient id="bronze" x1="118" y1="118" x2="174" y2="194" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8B483"/>
+      <stop offset="1" stop-color="#8E4518"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(138 72) rotate(90) scale(118 124)">
+      <stop offset="0" stop-color="#E8FF85" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#E8FF85" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="12" y="14" width="256" height="212" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="14"/>
+      <feGaussianBlur stdDeviation="16"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0156863 0 0 0 0 0.0196078 0 0 0 0 0.0156863 0 0 0 0.52 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M64 32C64 23.1634 71.1634 16 80 16H200C208.837 16 216 23.1634 216 32V63.4386C216 68.297 214.232 72.9897 211.027 76.6398L164.581 129.527C151.829 144.044 129.171 144.044 116.419 129.527L69.9731 76.6398C66.7681 72.9897 65 68.297 65 63.4386L64 32Z" fill="url(#bg)"/>
+    <path d="M64 48H216V32C216 23.1634 208.837 16 200 16H80C71.1634 16 64 23.1634 64 32V48Z" fill="url(#glow)"/>
+
+    <path d="M80 68C63.4315 68 50 81.4315 50 98C50 114.569 63.4315 128 80 128C89.0597 128 97.1815 123.964 102.675 117.595L95.0513 109.972C91.5544 113.762 86.5465 116.143 80.9824 116.143C70.3843 116.143 61.7957 107.555 61.7957 96.9569C61.7957 86.3588 70.3843 77.7702 80.9824 77.7702H103.012V68H80Z" fill="url(#silver)" fill-opacity="0.92"/>
+    <path d="M200 68C216.569 68 230 81.4315 230 98C230 114.569 216.569 128 200 128C190.94 128 182.819 123.964 177.325 117.595L184.949 109.972C188.446 113.762 193.453 116.143 199.018 116.143C209.616 116.143 218.204 107.555 218.204 96.9569C218.204 86.3588 209.616 77.7702 199.018 77.7702H176.988V68H200Z" fill="url(#silver)" fill-opacity="0.92"/>
+
+    <path d="M109 54H171V88C171 105.673 156.673 120 139 120C121.327 120 107 105.673 107 88V56C107 54.8954 107.895 54 109 54Z" fill="url(#gold)"/>
+    <path d="M122 44H158C159.105 44 160 44.8954 160 46V56H120V46C120 44.8954 120.895 44 122 44Z" fill="url(#silver)"/>
+    <path d="M124 125H154V144C154 154.493 145.493 163 135 163H143C153.493 163 162 171.507 162 182V188H116V180C116 170.059 124.059 162 134 162H141C131.611 162 124 154.389 124 145V125Z" fill="url(#gold)"/>
+    <path d="M108 188H170C174.418 188 178 191.582 178 196V202C178 206.418 174.418 210 170 210H108C103.582 210 100 206.418 100 202V196C100 191.582 103.582 188 108 188Z" fill="url(#bronze)"/>
+
+    <path d="M140 72L146.49 85.1697L161 87.2776L150.5 97.5138L152.98 112L140 105.17L127.02 112L129.5 97.5138L119 87.2776L133.51 85.1697L140 72Z" fill="#FDFDF5" fill-opacity="0.88"/>
+    <circle cx="96" cy="184" r="15" fill="#A65C28"/>
+    <circle cx="96" cy="184" r="8.5" fill="#F2A14E"/>
+    <circle cx="140" cy="176" r="18" fill="#A3AFBD"/>
+    <circle cx="140" cy="176" r="10.5" fill="#F2F6FB"/>
+    <circle cx="184" cy="184" r="15" fill="#9C7A16"/>
+    <circle cx="184" cy="184" r="8.5" fill="#F4DA67"/>
+
+    <path d="M89 26L93.2426 34.7574L102 39L93.2426 43.2426L89 52L84.7574 43.2426L76 39L84.7574 34.7574L89 26Z" fill="#E8FF85" fill-opacity="0.9"/>
+    <path d="M190 30L192.828 35.1716L198 38L192.828 40.8284L190 46L187.172 40.8284L182 38L187.172 35.1716L190 30Z" fill="#FFFFFF" fill-opacity="0.7"/>
+  </g>
+</svg>
