@@ -7,8 +7,6 @@ import {
   BadgeCheck,
   Camera,
   CheckCircle2,
-  Dumbbell,
-  HeartPulse,
   LockKeyhole,
   Mail,
   ShieldCheck,
@@ -18,6 +16,7 @@ import {
 
 import { ApiError } from '@/api/client'
 import { acceptInvitation, fetchInvitation } from '@/api/invitations'
+import { ProfilePhotoCropper } from '@/components/media/ProfilePhotoCropper'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserRole } from '@/enums/user-role'
 import type { RegistrationInvitation } from '@/types/auth/user'
@@ -26,36 +25,18 @@ const SPLASH_ART_URL = '/mb-fitness-invite-splash.png'
 const LOGO_URL = '/mb-fitness-logo.png'
 const TRAINER_PLACEHOLDER_URL = '/mb-fitness-trainer-placeholder.png'
 
-const LEVELS = [
-  { value: 'beginner', label: 'Iniciante', description: 'Menos de 6 meses' },
-  { value: 'intermediate', label: 'Intermediário', description: '6 meses a 2 anos' },
-  { value: 'advanced', label: 'Avançado', description: 'Mais de 2 anos' },
-  { value: 'athlete', label: 'Atleta', description: 'Competitivo' },
-] as const
-
-const GENDERS = [
-  { value: 'M', label: 'Masculino' },
-  { value: 'F', label: 'Feminino' },
-  { value: 'other', label: 'Outro' },
-] as const
-
 type SignupForm = {
   name: string
   email: string
   password: string
+  password_confirmation: string
   cref: string
   phone: string
   instagram: string
   bio: string
-  birth_date: string
-  gender: string
-  training_level: string
-  gym_name: string
-  physical_limitations: string
-  injuries: string
 }
 
-type InviteStep = 'splash' | 'summary' | 'account' | 'training' | 'health' | 'professional'
+type InviteStep = 'splash' | 'summary' | 'account' | 'professional'
 
 type StepConfig = {
   id: InviteStep
@@ -66,16 +47,11 @@ const initialForm: SignupForm = {
   name: '',
   email: '',
   password: '',
+  password_confirmation: '',
   cref: '',
   phone: '',
   instagram: '',
   bio: '',
-  birth_date: '',
-  gender: '',
-  training_level: '',
-  gym_name: '',
-  physical_limitations: '',
-  injuries: '',
 }
 
 function firstName(name: string) {
@@ -138,6 +114,8 @@ export function InvitationSignupPage() {
   const [invitation, setInvitation] = useState<RegistrationInvitation | null>(null)
   const [form, setForm] = useState<SignupForm>(initialForm)
   const [photo, setPhoto] = useState<File | null>(null)
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
+  const [cropperOpen, setCropperOpen] = useState(false)
   const [stepIndex, setStepIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -179,7 +157,7 @@ export function InvitationSignupPage() {
       return [...shared, { id: 'professional', label: 'Perfil' }]
     }
 
-    return [...shared, { id: 'training', label: 'Treino' }, { id: 'health', label: 'Saúde' }]
+    return shared
   }, [isTrainerInvite])
 
   const activeIndex = Math.min(stepIndex, steps.length - 1)
@@ -190,7 +168,9 @@ export function InvitationSignupPage() {
   const ownerFirstName = firstName(ownerName)
   const trainerPhoto = invitation?.trainer?.photo_url || TRAINER_PLACEHOLDER_URL
   const summaryTitle = isTrainerInvite ? 'Ative seu perfil profissional' : 'Crie seu acesso'
-  const accountIsValid = form.name.trim() !== '' && form.email.trim() !== '' && form.password.length >= 8
+  const passwordsMatch =
+    form.password.length >= 8 && form.password === form.password_confirmation
+  const accountIsValid = form.name.trim() !== '' && form.email.trim() !== '' && passwordsMatch
   const isLastStep = activeIndex === steps.length - 1
 
   const photoPreview = useMemo(() => (photo ? URL.createObjectURL(photo) : null), [photo])
@@ -201,22 +181,52 @@ export function InvitationSignupPage() {
     }
   }, [photoPreview])
 
-  function updateField(field: keyof SignupForm, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }))
+  useEffect(() => {
+    return () => {
+      if (cropImageSrc) URL.revokeObjectURL(cropImageSrc)
+    }
+  }, [cropImageSrc])
+
+  function handlePhotoFileSelect(file: File | null) {
+    if (!file) return
+
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc)
+    }
+
+    setCropImageSrc(URL.createObjectURL(file))
+    setCropperOpen(true)
   }
 
-  function toggleField(field: 'gender' | 'training_level', value: string) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: prev[field] === value ? '' : value,
-    }))
+  function handleCropConfirm(file: File) {
+    setPhoto(file)
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc)
+      setCropImageSrc(null)
+    }
+  }
+
+  function handleCropCancel() {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc)
+      setCropImageSrc(null)
+    }
+  }
+
+  function updateField(field: keyof SignupForm, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   function validateStep(step: InviteStep) {
     if (step !== 'account') return true
 
-    if (!accountIsValid) {
+    if (form.name.trim() === '' || form.email.trim() === '') {
       setError('Preencha nome, e-mail e uma senha com pelo menos 8 caracteres.')
+      return false
+    }
+
+    if (!passwordsMatch) {
+      setError('Confirme a senha usando os mesmos caracteres.')
       return false
     }
 
@@ -234,20 +244,18 @@ export function InvitationSignupPage() {
     setStepIndex((current) => Math.max(current - 1, 0))
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    if (!isLastStep) {
-      goToNextStep()
-      return
-    }
-
+  async function submitInvitation() {
+    if (isSubmitting) return
     if (!token || !invitation) return
 
     if (!accountIsValid) {
       const accountStep = steps.findIndex((step) => step.id === 'account')
       setStepIndex(Math.max(accountStep, 0))
-      setError('Preencha nome, e-mail e uma senha com pelo menos 8 caracteres.')
+      setError(
+        !passwordsMatch
+          ? 'Confirme a senha usando os mesmos caracteres.'
+          : 'Preencha nome, e-mail e uma senha com pelo menos 8 caracteres.',
+      )
       return
     }
 
@@ -287,6 +295,26 @@ export function InvitationSignupPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  function handlePrimaryAction() {
+    if (isLastStep) {
+      void submitInvitation()
+      return
+    }
+
+    goToNextStep()
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!isLastStep) {
+      goToNextStep()
+      return
+    }
+
+    await submitInvitation()
   }
 
   function renderStage() {
@@ -368,9 +396,20 @@ export function InvitationSignupPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={(event) => setPhoto(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                handlePhotoFileSelect(event.target.files?.[0] ?? null)
+                event.target.value = ''
+              }}
             />
           </label>
+
+          <ProfilePhotoCropper
+            imageSrc={cropImageSrc}
+            open={cropperOpen}
+            onOpenChange={setCropperOpen}
+            onConfirm={handleCropConfirm}
+            onCancel={handleCropCancel}
+          />
 
           <div className="invite-onboarding__field-grid">
             <Field label="Nome completo">
@@ -402,6 +441,16 @@ export function InvitationSignupPage() {
                 autoComplete="new-password"
               />
             </Field>
+            <Field label="Confirmar senha">
+              <input
+                className="invite-onboarding__input"
+                type="password"
+                minLength={8}
+                value={form.password_confirmation}
+                onChange={(event) => updateField('password_confirmation', event.target.value)}
+                autoComplete="new-password"
+              />
+            </Field>
             {isTrainerInvite ? (
               <Field label="Telefone">
                 <input
@@ -412,111 +461,8 @@ export function InvitationSignupPage() {
                   autoComplete="tel"
                 />
               </Field>
-            ) : (
-              <Field label="Data de nascimento">
-                <input
-                  className="invite-onboarding__input"
-                  type="date"
-                  value={form.birth_date}
-                  onChange={(event) => updateField('birth_date', event.target.value)}
-                />
-              </Field>
-            )}
+            ) : null}
           </div>
-        </>
-      )
-    }
-
-    if (activeStep.id === 'training') {
-      return (
-        <>
-          <StepHeader
-            eyebrow="Treino"
-            title="Contexto inicial"
-            description="Essas informações ajudam o personal a entender o ponto de partida."
-            icon={<Dumbbell size={15} />}
-          />
-
-          <div className="invite-onboarding__field-grid">
-            <Field label="Academia">
-              <input
-                className="invite-onboarding__input"
-                value={form.gym_name}
-                onChange={(event) => updateField('gym_name', event.target.value)}
-                placeholder="Nome da academia"
-              />
-            </Field>
-            <div className="invite-onboarding__field">
-              <span>Gênero</span>
-              <div className="invite-onboarding__segmented" role="group" aria-label="Gênero">
-                {GENDERS.map((gender) => (
-                  <button
-                    key={gender.value}
-                    type="button"
-                    data-active={form.gender === gender.value}
-                    onClick={() => toggleField('gender', gender.value)}
-                  >
-                    {gender.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="invite-onboarding__level-grid" aria-label="Nível de treino">
-            {LEVELS.map((level) => (
-              <button
-                key={level.value}
-                type="button"
-                className="invite-onboarding__level"
-                data-active={form.training_level === level.value}
-                onClick={() => toggleField('training_level', level.value)}
-              >
-                <span>
-                  <strong>{level.label}</strong>
-                  <small>{level.description}</small>
-                </span>
-                <i aria-hidden="true" />
-              </button>
-            ))}
-          </div>
-        </>
-      )
-    }
-
-    if (activeStep.id === 'health') {
-      return (
-        <>
-          <StepHeader
-            eyebrow="Saúde"
-            title="Observações rápidas"
-            description="Preencha se já souber. A anamnese completa continuará obrigatória no primeiro acesso."
-            icon={<HeartPulse size={15} />}
-          />
-
-          <div className="invite-onboarding__field-grid">
-            <Field label="Limitações físicas">
-              <textarea
-                className="invite-onboarding__input invite-onboarding__textarea"
-                value={form.physical_limitations}
-                onChange={(event) => updateField('physical_limitations', event.target.value)}
-                placeholder="Ex: dor no joelho, escoliose..."
-              />
-            </Field>
-            <Field label="Lesões">
-              <textarea
-                className="invite-onboarding__input invite-onboarding__textarea"
-                value={form.injuries}
-                onChange={(event) => updateField('injuries', event.target.value)}
-                placeholder="Ex: ombro operado, tendinite..."
-              />
-            </Field>
-          </div>
-
-          <p className="invite-onboarding__security invite-onboarding__security--soft">
-            <Sparkles size={16} /> A anamnese completa será aberta automaticamente antes do uso do
-            app do aluno.
-          </p>
         </>
       )
     }
@@ -667,9 +613,9 @@ export function InvitationSignupPage() {
             ) : null}
 
             <button
-              type={isLastStep ? 'submit' : 'button'}
+              type="button"
               className="invite-onboarding__primary"
-              onClick={isLastStep ? undefined : goToNextStep}
+              onClick={handlePrimaryAction}
               disabled={isSubmitting}
             >
               {isSubmitting

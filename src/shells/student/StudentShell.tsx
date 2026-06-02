@@ -27,9 +27,6 @@ export function StudentShell() {
 
   return (
     <div className="dark shell-bg student-shell min-h-svh">
-      <div className="student-shell__ambient student-shell__ambient--primary" aria-hidden />
-      <div className="student-shell__ambient student-shell__ambient--secondary" aria-hidden />
-
       <div
         className={cn(
           'student-shell__container relative z-10 mx-auto w-full max-w-[430px] px-[10px] pt-6',
@@ -59,8 +56,8 @@ export function StudentShell() {
       </div>
 
       {!isActiveWorkout ? (
-        <nav className="nav-student fixed bottom-0 left-0 right-0 z-50">
-          <div className="mx-auto flex w-full max-w-[430px] items-center justify-around px-2 py-2">
+        <nav className="nav-student fixed z-50" aria-label="Navegação do aluno">
+          <div className="student-shell__nav-inner mx-auto w-full max-w-[430px]">
             {navItems.map(({ icon: Icon, label, href }) => {
               const isActive =
                 pathname === href || (href !== '/app' && pathname.startsWith(href))

@@ -2,9 +2,8 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CircleAlert, Sparkles } from 'lucide-react'
 
+import { StudentPortrait } from '@/shells/trainer/components/student/StudentPortrait'
 import type { Student } from '@/types/fitness'
-
-import { getInitials } from './tints'
 
 type PriorityItem = {
   key: string
@@ -159,7 +158,7 @@ export function TrainerActionRail({
                   className="trainer-lux-student-row"
                   onClick={() => navigate(`/trainer/students/${student.id}`)}
                 >
-                  <span className="trainer-lux-student-avatar">{getInitials(student.name)}</span>
+                  <StudentPortrait student={student} size="sm" className="trainer-lux-student-avatar" />
                   <div className="trainer-lux-student-copy">
                     <p>{student.name}</p>
                     <span>

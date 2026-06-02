@@ -7,6 +7,7 @@ import {
   Check,
   Dumbbell,
   HeartPulse,
+  ImageIcon,
   Lightbulb,
   Ruler,
   Scale,
@@ -17,6 +18,13 @@ import {
 } from 'lucide-react'
 
 import { updateAnamnesis, uploadAnamnesisPhoto } from '@/api/student'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
 import { useAuth } from '@/contexts/AuthContext'
 
 const GOAL_SUGGESTIONS = [
@@ -44,6 +52,12 @@ const LEVELS: Array<{
 
 const STEP_LABELS = ['Objetivo', 'Nível', 'Medidas', 'Saúde', 'Fotos']
 const TOTAL_STEPS = STEP_LABELS.length
+
+const GENDERS = [
+  { value: 'M', label: 'Masculino' },
+  { value: 'F', label: 'Feminino' },
+  { value: 'other', label: 'Outro' },
+] as const
 
 const PHOTO_POSITIONS = [
   { key: 'front', label: 'Frente' },
@@ -80,6 +94,14 @@ const empty: FormData = {
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ')
+}
+
+function getCameraInputId(key: PhotoKey) {
+  return `anamnesis-photo-camera-${key}`
+}
+
+function getGalleryInputId(key: PhotoKey) {
+  return `anamnesis-photo-gallery-${key}`
 }
 
 function Surface({ children, className }: { children: ReactNode; className?: string }) {
@@ -129,7 +151,8 @@ export function AnamnesisOnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [step3Touched, setStep3Touched] = useState(false)
-  const fileInputRefs = useRef<Partial<Record<PhotoKey, HTMLInputElement | null>>>({})
+  const [activePhotoKey, setActivePhotoKey] = useState<PhotoKey | null>(null)
+  const [photoSourceDrawerOpen, setPhotoSourceDrawerOpen] = useState(false)
   const previewUrlRefs = useRef<Partial<Record<PhotoKey, string>>>({})
 
   useEffect(() => {
@@ -151,7 +174,27 @@ export function AnamnesisOnboardingPage() {
     previewUrlRefs.current[key] = url
     setPhotos((prev) => ({ ...prev, [key]: file }))
     setPhotoPreviews((prev) => ({ ...prev, [key]: url }))
+    setPhotoSourceDrawerOpen(false)
+    setActivePhotoKey(null)
   }
+
+  function handlePhotoInputChange(key: PhotoKey, event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (file) {
+      handlePhotoSelect(key, file)
+    }
+    event.target.value = ''
+  }
+
+  function openPhotoSourcePicker(key: PhotoKey) {
+    setActivePhotoKey(key)
+    setPhotoSourceDrawerOpen(true)
+  }
+
+  const activePhotoLabel =
+    PHOTO_POSITIONS.find((position) => position.key === activePhotoKey)?.label ?? 'foto'
+  const activeCameraInputId = activePhotoKey ? getCameraInputId(activePhotoKey) : null
+  const activeGalleryInputId = activePhotoKey ? getGalleryInputId(activePhotoKey) : null
 
   const studentName = user?.student?.name?.split(' ')[0] ?? user?.name?.split(' ')[0] ?? 'Atleta'
 
@@ -211,8 +254,7 @@ export function AnamnesisOnboardingPage() {
       <div className="anamnesis-shell">
         <header className="anamnesis-top">
           <div className="anamnesis-brand" aria-label="MB Fitness">
-            <span>mb</span>
-            <i />
+            <img src="/mb-fitness-logo.png" alt="MB Fitness" />
           </div>
 
           <div className="anamnesis-status">
@@ -353,6 +395,7 @@ export function AnamnesisOnboardingPage() {
                       className="anamnesis-input"
                       name="height"
                       type="number"
+                      inputMode="numeric"
                       min={100}
                       max={250}
                       value={form.height}
@@ -366,6 +409,7 @@ export function AnamnesisOnboardingPage() {
                       className="anamnesis-input"
                       name="weight"
                       type="number"
+                      inputMode="decimal"
                       step="0.1"
                       min={30}
                       max={300}
@@ -383,17 +427,23 @@ export function AnamnesisOnboardingPage() {
 
                 <div className="anamnesis-field-grid">
                   <Field label="Gênero" required invalid={step3Touched && !form.gender}>
-                    <select
-                      className="anamnesis-input anamnesis-select"
-                      name="gender"
-                      value={form.gender}
-                      onChange={handleChange}
-                    >
-                      <option value="">Selecionar</option>
-                      <option value="M">Masculino</option>
-                      <option value="F">Feminino</option>
-                      <option value="other">Outro</option>
-                    </select>
+                    <div className="anamnesis-segmented" role="group" aria-label="Gênero">
+                      {GENDERS.map((gender) => (
+                        <button
+                          key={gender.value}
+                          type="button"
+                          data-active={form.gender === gender.value}
+                          onClick={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              gender: prev.gender === gender.value ? '' : gender.value,
+                            }))
+                          }
+                        >
+                          {gender.label}
+                        </button>
+                      ))}
+                    </div>
                   </Field>
 
                   <Field label="Nascimento" required invalid={step3Touched && !form.birth_date}>
@@ -479,24 +529,26 @@ export function AnamnesisOnboardingPage() {
                   return (
                     <div key={key}>
                       <input
+                        id={getCameraInputId(key)}
                         type="file"
-                        accept="image/*"
+                        accept="image/*,image/heic,image/heif"
                         capture="environment"
                         className="sr-only"
-                        ref={(el) => {
-                          fileInputRefs.current[key] = el
-                        }}
-                        onChange={(event) => {
-                          const file = event.target.files?.[0]
-                          if (file) handlePhotoSelect(key, file)
-                        }}
+                        onChange={(event) => handlePhotoInputChange(key, event)}
+                      />
+                      <input
+                        id={getGalleryInputId(key)}
+                        type="file"
+                        accept="image/*,image/heic,image/heif"
+                        className="sr-only"
+                        onChange={(event) => handlePhotoInputChange(key, event)}
                       />
                       <button
                         type="button"
                         className="anamnesis-photo-tile"
                         data-filled={Boolean(preview)}
                         style={preview ? { backgroundImage: `url(${preview})` } : undefined}
-                        onClick={() => fileInputRefs.current[key]?.click()}
+                        onClick={() => openPhotoSourcePicker(key)}
                       >
                         {preview ? (
                           <span className="anamnesis-photo-tile__done">
@@ -515,6 +567,42 @@ export function AnamnesisOnboardingPage() {
                   )
                 })}
               </div>
+
+              <Drawer open={photoSourceDrawerOpen} onOpenChange={setPhotoSourceDrawerOpen}>
+                <DrawerContent className="anamnesis-photo-source-drawer">
+                  <DrawerHeader>
+                    <DrawerTitle>Adicionar foto — {activePhotoLabel}</DrawerTitle>
+                    <DrawerDescription>
+                      Escolha tirar uma foto agora ou usar uma imagem da galeria.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="anamnesis-photo-source-actions">
+                    <label
+                      className="anamnesis-photo-source-btn"
+                      htmlFor={activeCameraInputId ?? undefined}
+                      aria-disabled={!activeCameraInputId}
+                    >
+                      <Camera size={20} />
+                      Tirar foto
+                    </label>
+                    <label
+                      className="anamnesis-photo-source-btn"
+                      htmlFor={activeGalleryInputId ?? undefined}
+                      aria-disabled={!activeGalleryInputId}
+                    >
+                      <ImageIcon size={20} />
+                      Escolher da galeria
+                    </label>
+                    <button
+                      type="button"
+                      className="anamnesis-photo-source-btn anamnesis-photo-source-btn--ghost"
+                      onClick={() => setPhotoSourceDrawerOpen(false)}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </DrawerContent>
+              </Drawer>
             </>
           )}
         </div>

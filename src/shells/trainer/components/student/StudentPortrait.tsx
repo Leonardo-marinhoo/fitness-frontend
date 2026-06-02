@@ -5,13 +5,20 @@ import { cn } from '@/lib/utils'
 
 type StudentPortraitProps = {
   student: Student
-  size?: 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
 const sizeClass = {
+  sm: 'size-11',
   md: 'size-20',
   lg: 'size-24 sm:size-28',
+}
+
+const fallbackTextClass = {
+  sm: 'text-xs font-bold',
+  md: 'text-lg font-bold',
+  lg: 'text-lg font-bold sm:text-xl',
 }
 
 export function StudentPortrait({ student, size = 'lg', className }: StudentPortraitProps) {
@@ -29,7 +36,7 @@ export function StudentPortrait({ student, size = 'lg', className }: StudentPort
         <img src={portrait} alt="" className="size-full object-cover" />
       ) : (
         <div
-          className="flex size-full items-center justify-center text-lg font-bold sm:text-xl"
+          className={cn('flex size-full items-center justify-center', fallbackTextClass[size])}
           style={{
             background:
               'linear-gradient(135deg, rgba(200,241,53,0.18), rgba(112,215,255,0.14))',

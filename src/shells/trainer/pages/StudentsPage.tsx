@@ -8,13 +8,12 @@ import { ProgressThin } from '@/components/design-system'
 import { EnumBadge } from '@/components/ui/enum-badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
-  TrainerAvatar,
   TrainerButton,
   TrainerEmptyState,
   TrainerListRow,
   TrainerPageHeader,
-  getInitials,
 } from '@/components/trainer-ui'
+import { StudentPortrait } from '@/shells/trainer/components/student/StudentPortrait'
 import { getLevelStyle } from '@/lib/enum-colors'
 import type { RegistrationInvitation } from '@/types/auth/user'
 import type { Student } from '@/types/fitness'
@@ -98,51 +97,55 @@ export function StudentsPage() {
 
       <form
         onSubmit={(event) => void handleCreateInvite(event)}
-        className="rounded-2xl border border-white/8 bg-white/[0.025] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+        className="trainer-invite-panel"
       >
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="m-0 text-base font-bold text-zinc-100">Convidar aluno</h2>
-            <p className="mt-1 max-w-2xl text-sm text-zinc-500">
-              Gere um link único para o aluno preencher os dados e criar o próprio acesso.
-            </p>
+        <div className="trainer-invite-panel__head">
+          <div className="trainer-invite-panel__title-row">
+            <span className="trainer-invite-panel__icon">
+              <Send size={16} />
+            </span>
+            <div>
+              <h2>Convidar aluno</h2>
+              <p>Gere um link individual para o aluno criar o próprio acesso.</p>
+            </div>
           </div>
+
           <button
             type="submit"
             disabled={isCreatingInvite}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-trainer-accent px-4 py-2.5 text-sm font-medium text-trainer-on-accent transition-all hover:brightness-110 disabled:opacity-60"
+            className="trainer-invite-panel__submit"
           >
             <Send size={15} />
             {isCreatingInvite ? 'Gerando...' : 'Gerar convite'}
           </button>
         </div>
 
-        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="trainer-invite-panel__body">
           <input
             value={inviteName}
             onChange={(event) => setInviteName(event.target.value)}
             placeholder="Nome do aluno (opcional)"
-            className="min-h-11 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-600"
+            className="trainer-invite-panel__input"
           />
-          <span className="hidden items-center rounded-xl border border-white/8 bg-white/[0.03] px-3 text-xs text-zinc-500 md:inline-flex">
+          <span className="trainer-invite-panel__hint">
             O aluno escolhe o e-mail no cadastro.
           </span>
         </div>
 
-        <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+        <p className="trainer-invite-panel__notice">
           Observação: o link é único por pessoa e só deve ser compartilhado com quem deve se cadastrar.
           Depois que o cadastro for finalizado, ele não funciona mais.
         </p>
 
-        {inviteError ? <p className="mt-3 text-sm text-red-300">{inviteError}</p> : null}
+        {inviteError ? <p className="trainer-invite-panel__error">{inviteError}</p> : null}
 
         {invite?.invite_url ? (
-          <div className="mt-4 grid items-center gap-2 border-t border-white/8 pt-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-            <code className="truncate text-xs text-zinc-400">{invite.invite_url}</code>
+          <div className="trainer-invite-panel__result">
+            <code>{invite.invite_url}</code>
             <button
               type="button"
               onClick={() => void navigator.clipboard.writeText(invite.invite_url ?? '')}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-bold text-zinc-200"
+              className="trainer-invite-panel__copy"
             >
               <Copy size={14} />
               Copiar
@@ -151,7 +154,7 @@ export function StudentsPage() {
               href={buildWhatsAppUrl(invite.invite_url)}
               target="_blank"
               rel="noreferrer"
-              className="btn-accent inline-flex min-h-10 items-center justify-center gap-2 px-3 text-xs"
+              className="trainer-invite-panel__whatsapp"
             >
               <MessageCircle size={14} />
               Enviar no WhatsApp
@@ -183,7 +186,7 @@ export function StudentsPage() {
             <TrainerListRow
               key={student.id}
               onClick={() => navigate(`/trainer/students/${student.id}`)}
-              leading={<TrainerAvatar initials={getInitials(student.name)} />}
+              leading={<StudentPortrait student={student} size="sm" />}
               title={student.name}
               meta={
                 <span className="flex flex-col gap-1.5">

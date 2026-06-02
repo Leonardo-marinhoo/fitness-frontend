@@ -12,6 +12,7 @@ import { fetchTrainerStudents, fetchTrainingSheets } from '@/api/trainer'
 import { TrainerButton, TrainerCard, TrainerPageHeader } from '@/components/trainer-ui'
 import { EnumBadge } from '@/components/ui/enum-badge'
 import { getSheetStatusStyle, SHEET_STATUS } from '@/lib/enum-colors'
+import { StudentPortrait } from '@/shells/trainer/components/student/StudentPortrait'
 import type { Student, TrainingSheet } from '@/types/fitness'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -24,15 +25,6 @@ function formatDate(d: string | null) {
 
 function studentName(students: Student[], id: number) {
   return students.find((s) => s.id === id)?.name ?? null
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
 }
 
 // ─── Sheet Card ─────────────────────────────────────────────────────────────
@@ -203,14 +195,12 @@ export function TrainingSheetsPage() {
   }, [sheets, students, statusFilter, search])
 
   const activeCount = counts.active ?? 0
-  const activeStudentInitials = useMemo(() => {
+  const activeStudents = useMemo(() => {
     const ids = new Set(
       sheets.filter((s) => s.status === 'active').map((s) => s.student_id),
     )
-    return students
-      .filter((s) => ids.has(s.id))
-      .slice(0, 4)
-      .map((s) => getInitials(s.name))
+
+    return students.filter((s) => ids.has(s.id)).slice(0, 4)
   }, [sheets, students])
 
   return (
@@ -227,16 +217,16 @@ export function TrainingSheetsPage() {
         }
       />
 
-      {activeStudentInitials.length > 0 ? (
+      {activeStudents.length > 0 ? (
         <div className="flex items-center gap-2">
           <div className="td-avatar-stack">
-            {activeStudentInitials.map((init, i) => (
-              <span
-                key={i}
-                className="inline-flex size-8 items-center justify-center rounded-full bg-[#1c1c1e] text-[10px] font-bold text-[#a3ff12]"
-              >
-                {init}
-              </span>
+            {activeStudents.map((student) => (
+              <StudentPortrait
+                key={student.id}
+                student={student}
+                size="sm"
+                className="!size-8 shrink-0"
+              />
             ))}
           </div>
           <span className="text-xs text-zinc-400">Alunos com ficha ativa</span>
