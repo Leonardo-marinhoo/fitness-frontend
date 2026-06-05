@@ -263,395 +263,397 @@ export function AnamnesisOnboardingPage() {
           </div>
         </header>
 
-        <div className="anamnesis-progress" aria-label={`Passo ${step} de ${TOTAL_STEPS}`}>
-          {STEP_LABELS.map((label, index) => (
-            <span
-              key={label}
-              aria-label={label}
-              data-active={index + 1 === step}
-              data-complete={index + 1 < step}
-            />
-          ))}
-        </div>
+        <section className="anamnesis-card">
+          <div className="anamnesis-progress" aria-label={`Passo ${step} de ${TOTAL_STEPS}`}>
+            {STEP_LABELS.map((label, index) => (
+              <span
+                key={label}
+                aria-label={label}
+                data-active={index + 1 === step}
+                data-complete={index + 1 < step}
+              />
+            ))}
+          </div>
 
-        <p className="anamnesis-eyebrow">
-          Passo {step} de {TOTAL_STEPS} / {STEP_LABELS[step - 1]}
-        </p>
+          <p className="anamnesis-eyebrow">
+            Passo {step} de {TOTAL_STEPS} / {STEP_LABELS[step - 1]}
+          </p>
 
-        <div key={stepKey} className="anamnesis-step">
-          {step === 1 && (
-            <>
-              <StepTitle>Olá, {studentName}. Vamos começar.</StepTitle>
-              <StepSubtitle>
-                Essas respostas ajudam seu personal a montar um treino mais seguro e preciso.
-              </StepSubtitle>
+          <div key={stepKey} className="anamnesis-step">
+            {step === 1 && (
+              <>
+                <StepTitle>Olá, {studentName}. Vamos começar.</StepTitle>
+                <StepSubtitle>
+                  Essas respostas ajudam seu personal a montar um treino mais seguro e preciso.
+                </StepSubtitle>
 
-              <Surface className="anamnesis-surface--spotlight">
-                <div className="anamnesis-section-heading">
-                  <Sparkles size={15} />
-                  <span>Objetivo principal</span>
-                </div>
+                <Surface className="anamnesis-surface--spotlight">
+                  <div className="anamnesis-section-heading">
+                    <Sparkles size={15} />
+                    <span>Objetivo principal</span>
+                  </div>
 
-                <div className="anamnesis-goal-input">
-                  <input
-                    className="anamnesis-input anamnesis-input--goal"
-                    data-filled={form.goal.trim().length > 0}
-                    name="goal"
-                    value={form.goal}
-                    onChange={handleChange}
-                    placeholder="Ex: ganhar massa magra e melhorar condicionamento"
-                    maxLength={100}
-                    autoFocus
-                  />
-                  <span>{form.goal.length}/100</span>
-                </div>
+                  <div className="anamnesis-goal-input">
+                    <input
+                      className="anamnesis-input anamnesis-input--goal"
+                      data-filled={form.goal.trim().length > 0}
+                      name="goal"
+                      value={form.goal}
+                      onChange={handleChange}
+                      placeholder="Ex: ganhar massa magra e melhorar condicionamento"
+                      maxLength={100}
+                      autoFocus
+                    />
+                    <span>{form.goal.length}/100</span>
+                  </div>
 
-                <div className="anamnesis-chip-row" aria-label="Sugestões de objetivo">
-                  {GOAL_SUGGESTIONS.map((goal) => {
-                    const active = form.goal === goal
+                  <div className="anamnesis-chip-row" aria-label="Sugestões de objetivo">
+                    {GOAL_SUGGESTIONS.map((goal) => {
+                      const active = form.goal === goal
+
+                      return (
+                        <button
+                          key={goal}
+                          type="button"
+                          className="anamnesis-chip"
+                          data-active={active}
+                          onClick={() => setForm((prev) => ({ ...prev, goal: active ? '' : goal }))}
+                        >
+                          {goal}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </Surface>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <StepTitle>Qual é o seu nível hoje?</StepTitle>
+                <StepSubtitle>
+                  Escolha a opção mais próxima da sua rotina atual. O personal pode ajustar depois.
+                </StepSubtitle>
+
+                <div className="anamnesis-level-list">
+                  {LEVELS.map((level) => {
+                    const Icon = level.icon
+                    const active = form.training_level === level.value
 
                     return (
                       <button
-                        key={goal}
+                        key={level.value}
                         type="button"
-                        className="anamnesis-chip"
+                        className="anamnesis-level"
                         data-active={active}
-                        onClick={() => setForm((prev) => ({ ...prev, goal: active ? '' : goal }))}
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            training_level: active ? '' : level.value,
+                          }))
+                        }
                       >
-                        {goal}
+                        <span className="anamnesis-level__icon">
+                          <Icon size={18} />
+                        </span>
+                        <span className="anamnesis-level__copy">
+                          <strong>{level.label}</strong>
+                          <small>{level.description}</small>
+                        </span>
+                        <span className="anamnesis-level__check">{active && <Check size={13} />}</span>
                       </button>
                     )
                   })}
                 </div>
-              </Surface>
-            </>
-          )}
 
-          {step === 2 && (
-            <>
-              <StepTitle>Qual é o seu nível hoje?</StepTitle>
-              <StepSubtitle>
-                Escolha a opção mais próxima da sua rotina atual. O personal pode ajustar depois.
-              </StepSubtitle>
+                <p className="anamnesis-soft-caption">Campo opcional. Pode avançar se não souber.</p>
+              </>
+            )}
 
-              <div className="anamnesis-level-list">
-                {LEVELS.map((level) => {
-                  const Icon = level.icon
-                  const active = form.training_level === level.value
+            {step === 3 && (
+              <>
+                <StepTitle>Suas medidas</StepTitle>
+                <StepSubtitle>
+                  Dados básicos para calcular indicadores e acompanhar sua evolução com mais precisão.
+                </StepSubtitle>
 
-                  return (
-                    <button
-                      key={level.value}
-                      type="button"
-                      className="anamnesis-level"
-                      data-active={active}
-                      onClick={() =>
-                        setForm((prev) => ({
-                          ...prev,
-                          training_level: active ? '' : level.value,
-                        }))
-                      }
-                    >
-                      <span className="anamnesis-level__icon">
-                        <Icon size={18} />
-                      </span>
-                      <span className="anamnesis-level__copy">
-                        <strong>{level.label}</strong>
-                        <small>{level.description}</small>
-                      </span>
-                      <span className="anamnesis-level__check">{active && <Check size={13} />}</span>
-                    </button>
-                  )
-                })}
-              </div>
+                {step3Touched && !step3Valid && (
+                  <div className="anamnesis-alert" role="alert">
+                    <span />
+                    <p>Preencha os campos obrigatórios para continuar.</p>
+                  </div>
+                )}
 
-              <p className="anamnesis-soft-caption">Campo opcional. Pode avançar se não souber.</p>
-            </>
-          )}
+                <Surface>
+                  <div className="anamnesis-section-heading">
+                    <Ruler size={15} />
+                    <span>Composição corporal</span>
+                  </div>
 
-          {step === 3 && (
-            <>
-              <StepTitle>Suas medidas</StepTitle>
-              <StepSubtitle>
-                Dados básicos para calcular indicadores e acompanhar sua evolução com mais precisão.
-              </StepSubtitle>
+                  <div className="anamnesis-field-grid">
+                    <Field label="Altura (cm)" required invalid={step3Touched && !form.height}>
+                      <input
+                        className="anamnesis-input"
+                        name="height"
+                        type="number"
+                        inputMode="numeric"
+                        min={100}
+                        max={250}
+                        value={form.height}
+                        onChange={handleChange}
+                        placeholder="175"
+                      />
+                    </Field>
 
-              {step3Touched && !step3Valid && (
-                <div className="anamnesis-alert" role="alert">
-                  <span />
-                  <p>Preencha os campos obrigatórios para continuar.</p>
+                    <Field label="Peso (kg)" required invalid={step3Touched && !form.weight}>
+                      <input
+                        className="anamnesis-input"
+                        name="weight"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min={30}
+                        max={300}
+                        value={form.weight}
+                        onChange={handleChange}
+                        placeholder="70"
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="anamnesis-section-heading anamnesis-section-heading--spaced">
+                    <UserRound size={15} />
+                    <span>Perfil</span>
+                  </div>
+
+                  <div className="anamnesis-field-grid">
+                    <Field label="Gênero" required invalid={step3Touched && !form.gender}>
+                      <div className="anamnesis-segmented" role="group" aria-label="Gênero">
+                        {GENDERS.map((gender) => (
+                          <button
+                            key={gender.value}
+                            type="button"
+                            data-active={form.gender === gender.value}
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                gender: prev.gender === gender.value ? '' : gender.value,
+                              }))
+                            }
+                          >
+                            {gender.label}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+
+                    <Field label="Nascimento" required invalid={step3Touched && !form.birth_date}>
+                      <input
+                        className="anamnesis-input"
+                        name="birth_date"
+                        type="date"
+                        value={form.birth_date}
+                        onChange={handleChange}
+                      />
+                    </Field>
+
+                    <Field label="Academia onde treina" className="anamnesis-field--full">
+                      <input
+                        className="anamnesis-input"
+                        name="gym_name"
+                        value={form.gym_name}
+                        onChange={handleChange}
+                        placeholder="Nome da academia (opcional)"
+                      />
+                    </Field>
+                  </div>
+
+                  <p className="anamnesis-required">* Campos obrigatórios</p>
+                </Surface>
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <StepTitle>Histórico de saúde</StepTitle>
+                <StepSubtitle>
+                  Limitações e lesões ajudam seu personal a ajustar cargas, exercícios e amplitude.
+                </StepSubtitle>
+
+                <Surface>
+                  <div className="anamnesis-field-stack">
+                    <Field label="Limitações físicas">
+                      <textarea
+                        className="anamnesis-input anamnesis-textarea"
+                        name="physical_limitations"
+                        value={form.physical_limitations}
+                        onChange={handleChange}
+                        placeholder="Ex: dor no joelho, escoliose, hérnia de disco..."
+                      />
+                    </Field>
+
+                    <Field label="Lesões anteriores ou em tratamento">
+                      <textarea
+                        className="anamnesis-input anamnesis-textarea"
+                        name="injuries"
+                        value={form.injuries}
+                        onChange={handleChange}
+                        placeholder="Ex: ombro operado em 2022, tendinite no cotovelo..."
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="anamnesis-note">
+                    <Lightbulb size={16} />
+                    <p>Campos opcionais. Você pode complementar essas informações depois.</p>
+                  </div>
+                </Surface>
+              </>
+            )}
+
+            {step === 5 && (
+              <>
+                <StepTitle>Fotos iniciais</StepTitle>
+                <StepSubtitle>
+                  Registre um ponto de partida visual para acompanhar sua evolução. Todas são opcionais.
+                </StepSubtitle>
+
+                <div className="anamnesis-photo-guide">
+                  <Camera size={18} />
+                  <p>Boa luz, corpo inteiro, fundo neutro e câmera na altura do tronco.</p>
                 </div>
-              )}
 
-              <Surface>
-                <div className="anamnesis-section-heading">
-                  <Ruler size={15} />
-                  <span>Composição corporal</span>
-                </div>
+                <div className="anamnesis-photo-grid">
+                  {PHOTO_POSITIONS.map(({ key, label }) => {
+                    const preview = photoPreviews[key]
 
-                <div className="anamnesis-field-grid">
-                  <Field label="Altura (cm)" required invalid={step3Touched && !form.height}>
-                    <input
-                      className="anamnesis-input"
-                      name="height"
-                      type="number"
-                      inputMode="numeric"
-                      min={100}
-                      max={250}
-                      value={form.height}
-                      onChange={handleChange}
-                      placeholder="175"
-                    />
-                  </Field>
-
-                  <Field label="Peso (kg)" required invalid={step3Touched && !form.weight}>
-                    <input
-                      className="anamnesis-input"
-                      name="weight"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.1"
-                      min={30}
-                      max={300}
-                      value={form.weight}
-                      onChange={handleChange}
-                      placeholder="70"
-                    />
-                  </Field>
-                </div>
-
-                <div className="anamnesis-section-heading anamnesis-section-heading--spaced">
-                  <UserRound size={15} />
-                  <span>Perfil</span>
-                </div>
-
-                <div className="anamnesis-field-grid">
-                  <Field label="Gênero" required invalid={step3Touched && !form.gender}>
-                    <div className="anamnesis-segmented" role="group" aria-label="Gênero">
-                      {GENDERS.map((gender) => (
+                    return (
+                      <div key={key}>
+                        <input
+                          id={getCameraInputId(key)}
+                          type="file"
+                          accept="image/*,image/heic,image/heif"
+                          capture="environment"
+                          className="sr-only"
+                          onChange={(event) => handlePhotoInputChange(key, event)}
+                        />
+                        <input
+                          id={getGalleryInputId(key)}
+                          type="file"
+                          accept="image/*,image/heic,image/heif"
+                          className="sr-only"
+                          onChange={(event) => handlePhotoInputChange(key, event)}
+                        />
                         <button
-                          key={gender.value}
                           type="button"
-                          data-active={form.gender === gender.value}
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              gender: prev.gender === gender.value ? '' : gender.value,
-                            }))
-                          }
+                          className="anamnesis-photo-tile"
+                          data-filled={Boolean(preview)}
+                          style={preview ? { backgroundImage: `url(${preview})` } : undefined}
+                          onClick={() => openPhotoSourcePicker(key)}
                         >
-                          {gender.label}
+                          {preview ? (
+                            <span className="anamnesis-photo-tile__done">
+                              <Check size={13} />
+                              {label}
+                            </span>
+                          ) : (
+                            <span className="anamnesis-photo-tile__empty">
+                              <Camera size={20} />
+                              <strong>{label}</strong>
+                              <small>Adicionar</small>
+                            </span>
+                          )}
                         </button>
-                      ))}
-                    </div>
-                  </Field>
-
-                  <Field label="Nascimento" required invalid={step3Touched && !form.birth_date}>
-                    <input
-                      className="anamnesis-input"
-                      name="birth_date"
-                      type="date"
-                      value={form.birth_date}
-                      onChange={handleChange}
-                    />
-                  </Field>
-
-                  <Field label="Academia onde treina" className="anamnesis-field--full">
-                    <input
-                      className="anamnesis-input"
-                      name="gym_name"
-                      value={form.gym_name}
-                      onChange={handleChange}
-                      placeholder="Nome da academia (opcional)"
-                    />
-                  </Field>
+                      </div>
+                    )
+                  })}
                 </div>
 
-                <p className="anamnesis-required">* Campos obrigatórios</p>
-              </Surface>
-            </>
-          )}
-
-          {step === 4 && (
-            <>
-              <StepTitle>Histórico de saúde</StepTitle>
-              <StepSubtitle>
-                Limitações e lesões ajudam seu personal a ajustar cargas, exercícios e amplitude.
-              </StepSubtitle>
-
-              <Surface>
-                <div className="anamnesis-field-stack">
-                  <Field label="Limitações físicas">
-                    <textarea
-                      className="anamnesis-input anamnesis-textarea"
-                      name="physical_limitations"
-                      value={form.physical_limitations}
-                      onChange={handleChange}
-                      placeholder="Ex: dor no joelho, escoliose, hérnia de disco..."
-                    />
-                  </Field>
-
-                  <Field label="Lesões anteriores ou em tratamento">
-                    <textarea
-                      className="anamnesis-input anamnesis-textarea"
-                      name="injuries"
-                      value={form.injuries}
-                      onChange={handleChange}
-                      placeholder="Ex: ombro operado em 2022, tendinite no cotovelo..."
-                    />
-                  </Field>
-                </div>
-
-                <div className="anamnesis-note">
-                  <Lightbulb size={16} />
-                  <p>Campos opcionais. Você pode complementar essas informações depois.</p>
-                </div>
-              </Surface>
-            </>
-          )}
-
-          {step === 5 && (
-            <>
-              <StepTitle>Fotos iniciais</StepTitle>
-              <StepSubtitle>
-                Registre um ponto de partida visual para acompanhar sua evolução. Todas são opcionais.
-              </StepSubtitle>
-
-              <div className="anamnesis-photo-guide">
-                <Camera size={18} />
-                <p>Boa luz, corpo inteiro, fundo neutro e câmera na altura do tronco.</p>
-              </div>
-
-              <div className="anamnesis-photo-grid">
-                {PHOTO_POSITIONS.map(({ key, label }) => {
-                  const preview = photoPreviews[key]
-
-                  return (
-                    <div key={key}>
-                      <input
-                        id={getCameraInputId(key)}
-                        type="file"
-                        accept="image/*,image/heic,image/heif"
-                        capture="environment"
-                        className="sr-only"
-                        onChange={(event) => handlePhotoInputChange(key, event)}
-                      />
-                      <input
-                        id={getGalleryInputId(key)}
-                        type="file"
-                        accept="image/*,image/heic,image/heif"
-                        className="sr-only"
-                        onChange={(event) => handlePhotoInputChange(key, event)}
-                      />
+                <Drawer open={photoSourceDrawerOpen} onOpenChange={setPhotoSourceDrawerOpen}>
+                  <DrawerContent className="anamnesis-photo-source-drawer">
+                    <DrawerHeader>
+                      <DrawerTitle>Adicionar foto — {activePhotoLabel}</DrawerTitle>
+                      <DrawerDescription>
+                        Escolha tirar uma foto agora ou usar uma imagem da galeria.
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="anamnesis-photo-source-actions">
+                      <label
+                        className="anamnesis-photo-source-btn"
+                        htmlFor={activeCameraInputId ?? undefined}
+                        aria-disabled={!activeCameraInputId}
+                      >
+                        <Camera size={20} />
+                        Tirar foto
+                      </label>
+                      <label
+                        className="anamnesis-photo-source-btn"
+                        htmlFor={activeGalleryInputId ?? undefined}
+                        aria-disabled={!activeGalleryInputId}
+                      >
+                        <ImageIcon size={20} />
+                        Escolher da galeria
+                      </label>
                       <button
                         type="button"
-                        className="anamnesis-photo-tile"
-                        data-filled={Boolean(preview)}
-                        style={preview ? { backgroundImage: `url(${preview})` } : undefined}
-                        onClick={() => openPhotoSourcePicker(key)}
+                        className="anamnesis-photo-source-btn anamnesis-photo-source-btn--ghost"
+                        onClick={() => setPhotoSourceDrawerOpen(false)}
                       >
-                        {preview ? (
-                          <span className="anamnesis-photo-tile__done">
-                            <Check size={13} />
-                            {label}
-                          </span>
-                        ) : (
-                          <span className="anamnesis-photo-tile__empty">
-                            <Camera size={20} />
-                            <strong>{label}</strong>
-                            <small>Adicionar</small>
-                          </span>
-                        )}
+                        Cancelar
                       </button>
                     </div>
-                  )
-                })}
-              </div>
+                  </DrawerContent>
+                </Drawer>
+              </>
+            )}
+          </div>
 
-              <Drawer open={photoSourceDrawerOpen} onOpenChange={setPhotoSourceDrawerOpen}>
-                <DrawerContent className="anamnesis-photo-source-drawer">
-                  <DrawerHeader>
-                    <DrawerTitle>Adicionar foto — {activePhotoLabel}</DrawerTitle>
-                    <DrawerDescription>
-                      Escolha tirar uma foto agora ou usar uma imagem da galeria.
-                    </DrawerDescription>
-                  </DrawerHeader>
-                  <div className="anamnesis-photo-source-actions">
-                    <label
-                      className="anamnesis-photo-source-btn"
-                      htmlFor={activeCameraInputId ?? undefined}
-                      aria-disabled={!activeCameraInputId}
-                    >
-                      <Camera size={20} />
-                      Tirar foto
-                    </label>
-                    <label
-                      className="anamnesis-photo-source-btn"
-                      htmlFor={activeGalleryInputId ?? undefined}
-                      aria-disabled={!activeGalleryInputId}
-                    >
-                      <ImageIcon size={20} />
-                      Escolher da galeria
-                    </label>
-                    <button
-                      type="button"
-                      className="anamnesis-photo-source-btn anamnesis-photo-source-btn--ghost"
-                      onClick={() => setPhotoSourceDrawerOpen(false)}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </DrawerContent>
-              </Drawer>
-            </>
-          )}
-        </div>
+          {error && <div className="anamnesis-error">{error}</div>}
 
-        {error && <div className="anamnesis-error">{error}</div>}
+          <nav className="anamnesis-actions" aria-label="Navegação da anamnese">
+            {step > 1 && (
+              <button
+                type="button"
+                className="anamnesis-action anamnesis-action--secondary"
+                onClick={() => goToStep(step - 1)}
+              >
+                <ArrowLeft size={16} />
+                Voltar
+              </button>
+            )}
 
-        <nav className="anamnesis-actions" aria-label="Navegação da anamnese">
-          {step > 1 && (
-            <button
-              type="button"
-              className="anamnesis-action anamnesis-action--secondary"
-              onClick={() => goToStep(step - 1)}
-            >
-              <ArrowLeft size={16} />
-              Voltar
+            {step < TOTAL_STEPS ? (
+              <button
+                type="button"
+                className="anamnesis-action anamnesis-action--primary"
+                data-disabled={!canAdvance}
+                onClick={() => {
+                  if (step === 3) setStep3Touched(true)
+                  if (canAdvance) goToStep(step + 1)
+                }}
+              >
+                Continuar
+                <ArrowRight size={16} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="anamnesis-action anamnesis-action--primary"
+                disabled={isSubmitting}
+                onClick={() => void handleFinish()}
+              >
+                {isSubmitting ? 'Salvando...' : 'Concluir e entrar'}
+                {!isSubmitting && <Check size={16} />}
+              </button>
+            )}
+          </nav>
+
+          {(step === 4 || step === TOTAL_STEPS) && !isSubmitting && (
+            <button type="button" className="anamnesis-skip" onClick={() => void handleFinish()}>
+              Pular e preencher depois
             </button>
           )}
-
-          {step < TOTAL_STEPS ? (
-            <button
-              type="button"
-              className="anamnesis-action anamnesis-action--primary"
-              data-disabled={!canAdvance}
-              onClick={() => {
-                if (step === 3) setStep3Touched(true)
-                if (canAdvance) goToStep(step + 1)
-              }}
-            >
-              Continuar
-              <ArrowRight size={16} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="anamnesis-action anamnesis-action--primary"
-              disabled={isSubmitting}
-              onClick={() => void handleFinish()}
-            >
-              {isSubmitting ? 'Salvando...' : 'Concluir e entrar'}
-              {!isSubmitting && <Check size={16} />}
-            </button>
-          )}
-        </nav>
-
-        {(step === 4 || step === TOTAL_STEPS) && !isSubmitting && (
-          <button type="button" className="anamnesis-skip" onClick={() => void handleFinish()}>
-            Pular e preencher depois
-          </button>
-        )}
+        </section>
       </div>
     </main>
   )
