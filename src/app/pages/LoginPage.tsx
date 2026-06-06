@@ -39,7 +39,7 @@ export function LoginPage() {
       <div className="surface-soft w-full max-w-[380px] p-8">
         <div className="mb-8 text-center">
           <div className="student-brand mb-1.5">mb</div>
-          <p className="text-caption m-0">Hub de Educação Física</p>
+          <p className="text-caption m-0">Hub de Educação Física ci/cd</p>
         </div>
 
         <form onSubmit={(e) => void handleSubmit(e)}>
