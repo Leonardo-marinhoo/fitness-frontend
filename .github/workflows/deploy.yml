@@ -21,4 +21,4 @@ jobs:
 
       - name: Executar deploy
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p "${{ secrets.VPS_PORT}}" "${{ secrets.VPS_USER}}@${{ secrets.VPS_HOST}}" "bash /var/www/deploy/fitness/deploy-front.sh"
+          ssh -i ~/.ssh/id_ed25519 -p "${{ secrets.VPS_PORT}}" "${{ secrets.VPS_USER}}@${{ secrets.VPS_HOST}}" "bash /var/www/deploy-scripts/fitness/deploy-front.sh"
